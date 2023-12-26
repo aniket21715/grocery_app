@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summary Page</title>
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f2f2f2;
+    }
+
+    .navbar {
+        background-color: #63bc57;
+        color: #0c0b0b;
+    }
+
+    .navbar-brand {
+        font-size: 24px;
+    }
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid">   
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/">Home</a>
+                </li>                    
+                <li class="nav-item">
+                    <a class="nav-link" href="/adminlogout">Log out</a>
+                </li>                   
+            </div>
+        </nav>
+    </div>
+    <h1>Summary Page</h1>
+    {% for section in sections %}
+    <h2>{{ section['section_name'] }}</h2>
+    <table>
+        <tr>
+            <th>Item Name</th>
+            <th>Item Count</th>
+            <th>Total Sales</th>
+        </tr>
+        {% for item in section['items'] %}
+        <tr>
+            <td>{{ item['item_name'] }}</td>
+            <td>{{ item['item_count'] }}</td>
+            <td>{{ item['total_sales'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <img src="{{ url_for('static', filename=section.graph_path) }}" alt="{{ section.section_name }} Graph" width="500px">
+
+    <br>
+    {% endfor %}
+</body>
+</html>

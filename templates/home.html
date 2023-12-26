@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Grocery App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .title-bar {
+            background-color: #65dc25;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .card {
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            text-align: center;
+            text-decoration: none;
+            color: #000000;
+            margin: 20px;
+            width: 250px;
+            border-radius: 10px;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        h1 {
+            margin-bottom: 30px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #65dc25;
+        }
+
+        .container {
+            margin-top: 30px;
+        }
+
+        .card-row {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .product-card {
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            text-align: center;
+            color: #000000;
+            margin: 20px;
+            width: 300px;
+            border-radius: 10px;
+            transition: transform 0.2s;
+        }
+
+        .product-card img {
+            max-width: 150px;
+            height: auto;
+        }
+
+        .product-card h5 {
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+
+        .product-card p {
+            margin-bottom: 10px;
+        }
+
+        .product-card h6 {
+            margin-bottom: 10px;
+            color: #888888;
+        }
+
+        .product-card button {
+            border: none;
+            background-color: #65dc25;
+            color: #ffffff;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .product-card button:hover {
+            background-color: #4cae1f;
+        }
+
+        .custom-card {
+            width: 150px;
+            height: 20px;
+        }
+
+        .search {
+            font-size: 20px;
+            width: 300px;
+            height: 20px;
+            padding: 10px;
+        }
+
+        .searchbar {
+            font-size: 20px;
+            width: 100px;
+            height: 40px;
+            background-color: rgb(143, 202, 244);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="title-bar">
+        <h1>Welcome to the Grocery App</h1>
+    </div>
+    <div class="cards-container">
+        <div class="card custom-card">
+            <a href="{{ url_for('login') }}">Login Page</a>
+        </div>
+        <div class="card custom-card">
+            <a href="{{ url_for('adminlogin') }}">Admin Login Page</a>
+        </div>
+        <div class="card custom-card">
+            <a href="{{ url_for('register') }}">Register Page</a>
+        </div>
+        <div>
+            {% if signed %}
+            <div class="card custom-card">
+                <a href="/cart">View Cart</a>
+            </div><br><br>
+
+            <span class="card d-flex justify-content-center align-items-center">
+                <a href="/api/purchase_history">purchase History</a>
+            </span>
+
+            <span class="card d-flex justify-content-center align-items-center">
+                <a href="/logout">Logout</a>
+            </span>
+            <div>
+                {% else %}
+
+                <div class="card custom-card">
+                    <a href="{{ url_for('login') }}">LOGIN</a> to add items to your cart.
+
+                </div>
+
+                {% endif %}
+            </div>
+        </div>
+
+
+
+    </div>
+    <br><br>
+    <div class="search-container">
+        <form method="GET" action="{{ url_for('search') }}">
+            <input type="text" placeholder="Search products" class="search" name="query">
+            <button type="submit" class="searchbar">Search</button>
+
+
+        </form>
+    </div>
+
+    <div class="container">
+        {% for section in sections %}
+        <h3>{{ section.name }}</h3>
+        <p>{{ section.description }}</p>
+        <div class="card-row">
+            {% for product in section.products %}
+            <div class="product-card">
+                <img src="{{ url_for('static', filename='products/' ~ product.id ~ '.png') }}" alt="Product Image">
+                <h5>{{ product.name }}</h5>
+                <p>{{ product.description }}</p>
+                <h6>Stock: {{ product.stock }}</h6>
+                <h6>Price: ₹{{ product.price }}</h6>
+                {% if signed %}
+                <form method="POST" action="/">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">₹</span>
+                        <span class="input-group-text">{{ product.price }}</span>
+                        <input type="number" class="form-control" placeholder="Number of Items" name="count">
+                        <input type="hidden" name="product" value="{{ product.id }}">
+                        <button type="submit">Add to Cart</button>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <div class="search-results">
+            <h3>Search Results</h3>
+            {% if search_results %}
+            <ul>
+                {% for result in search_results %}
+                <li>
+
+                    <img src="{{ url_for('static', filename='products/' ~ result['id']~ '.png') }}" alt="Product Image">
+                    <h5>{{ result['name'] }}</h5>
+                    <p>{{ result['description'] }}</p>
+                    <h6>Stock: {{ result['stock'] }}</h6>
+                    <h6>Price: ₹{{ result['price'] }}</h6>
+
+                    {% if signed %}
+                    <form method="POST" action="/">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">₹</span>
+                            <span class="input-group-text">{{ result['price'] }}</span>
+                            <input type="number" class="form-control" placeholder="Number of Items" name="count">
+                            <input type="hidden" name="product" value="{{ result['id'] }}">
+                            <button type="submit">Add to Cart</button>
+                        </div>
+                    </form>
+                    {% endif %}
+                </li>
+                <br>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No results found.</p>
+            {% endif %}
+        </div>
+
+    </div>
+</body>
+
+</html>
